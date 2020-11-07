@@ -159,7 +159,8 @@ def minimax(board, depth, alpha, beta, maximizingPlayer):
             else:  # Game is over, no more valid moves
                 return (None, 0)
         else:  # Depth is zero
-            return (None, score_position(board, AI_PIECE))
+            score = score_position(board, AI_PIECE if maximizingPlayer else MC_AI_PIECE)
+            return (None, (1 if maximizingPlayer else -1) * score)
     if maximizingPlayer:
         value = -math.inf
         column = random.choice(valid_locations)
@@ -224,12 +225,11 @@ def play_game(initial_turn):
     turn = initial_turn
 
     while True:
-
         # Ask for Player 1 Input
         if turn == MC_AI:
 
             # col = random.randint(0, COLUMN_COUNT-1)
-            # col = pick_best_move(board, AI_PIECE)
+            # col = pick_best_move(board, MC_AI_PIECE)
             col, minimax_score = minimax(board, 5, -math.inf, math.inf, False)
 
             if is_valid_location(board, col):
@@ -239,6 +239,7 @@ def play_game(initial_turn):
 
                 if winning_move(board, MC_AI_PIECE):
                     print("Player 1 wins!")
+                    print_board(board)
                     return MC_AI
 
                 #print_board(board)
@@ -259,7 +260,8 @@ def play_game(initial_turn):
 
                 if winning_move(board, AI_PIECE):
                     print("Player 2 wins!")
-                    return MC_AI
+                    print_board(board)
+                    return AI
 
                 #print_board(board)
 

@@ -8,5 +8,5 @@ for i in range(games):
     winner = play_game(i % 2)
     scores[winner] += 1
 
-print("MC_AI final score: %d", scores[MC_AI])
-print("AI final score: %d", scores[AI])
+print("MC_AI final score: %d" %  (scores[MC_AI]))
+print("AI final score: %d" % (scores[AI]))
