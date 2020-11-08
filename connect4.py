@@ -1,148 +1,128 @@
 import numpy as np
-import pygame
-import sys
-import math
 
-BLUE = (0,0,255)
-BLACK = (0,0,0)
-RED = (255,0,0)
-YELLOW = (255,255,0)
+class Connect4:
+    PLAYER_1 = 0
+    PLAYER_2 = 1
 
-ROW_COUNT = 6
-COLUMN_COUNT = 7
+    OPPONENT = [PLAYER_2, PLAYER_1]
 
-def create_board():
-	board = np.zeros((ROW_COUNT,COLUMN_COUNT))
-	return board
+    EMPTY = 0
+    PLAYER_1_PIECE = 1
+    PLAYER_2_PIECE = 2
 
-def drop_piece(board, row, col, piece):
-	board[row][col] = piece
+    def __init__(self, params):
+        self.ROW_COUNT = 6
+        self.COLUMN_COUNT = 7
 
-def is_valid_location(board, col):
-	return board[ROW_COUNT-1][col] == 0
+        self.WINDOW_LENGTH = 4
+        self.setup()
+        return
 
-def get_next_open_row(board, col):
-	for r in range(ROW_COUNT):
-		if board[r][col] == 0:
-			return r
+    def get_board(self):
+        return self.board
 
-def print_board(board):
-	print(np.flip(board, 0))
+    def setup(self):
+        self.board = self.create_board()
+        self.turn = self.PLAYER_1
 
-def winning_move(board, piece):
-	# Check horizontal locations for win
-	for c in range(COLUMN_COUNT-3):
-		for r in range(ROW_COUNT):
-			if board[r][c] == piece and board[r][c+1] == piece and board[r][c+2] == piece and board[r][c+3] == piece:
-				return True
+    def get_piece(self):
+        if self.turn == self.PLAYER_1:
+            return self.PLAYER_1_PIECE
+        return self.PLAYER_2_PIECE
 
-	# Check vertical locations for win
-	for c in range(COLUMN_COUNT):
-		for r in range(ROW_COUNT-3):
-			if board[r][c] == piece and board[r+1][c] == piece and board[r+2][c] == piece and board[r+3][c] == piece:
-				return True
+    def get_opponent_piece(self):
+        if self.turn == self.PLAYER_1:
+            return self.PLAYER_2_PIECE
+        return self.PLAYER_1_PIECE
 
-	# Check positively sloped diaganols
-	for c in range(COLUMN_COUNT-3):
-		for r in range(ROW_COUNT-3):
-			if board[r][c] == piece and board[r+1][c+1] == piece and board[r+2][c+2] == piece and board[r+3][c+3] == piece:
-				return True
+    def create_board(self):
+        board = np.zeros((self.ROW_COUNT, self.COLUMN_COUNT))
+        return board
 
-	# Check negatively sloped diaganols
-	for c in range(COLUMN_COUNT-3):
-		for r in range(3, ROW_COUNT):
-			if board[r][c] == piece and board[r-1][c+1] == piece and board[r-2][c+2] == piece and board[r-3][c+3] == piece:
-				return True
-
-def draw_board(board):
-	for c in range(COLUMN_COUNT):
-		for r in range(ROW_COUNT):
-			pygame.draw.rect(screen, BLUE, (c*SQUARESIZE, r*SQUARESIZE+SQUARESIZE, SQUARESIZE, SQUARESIZE))
-			pygame.draw.circle(screen, BLACK, (int(c*SQUARESIZE+SQUARESIZE/2), int(r*SQUARESIZE+SQUARESIZE+SQUARESIZE/2)), RADIUS)
-	
-	for c in range(COLUMN_COUNT):
-		for r in range(ROW_COUNT):		
-			if board[r][c] == 1:
-				pygame.draw.circle(screen, RED, (int(c*SQUARESIZE+SQUARESIZE/2), height-int(r*SQUARESIZE+SQUARESIZE/2)), RADIUS)
-			elif board[r][c] == 2: 
-				pygame.draw.circle(screen, YELLOW, (int(c*SQUARESIZE+SQUARESIZE/2), height-int(r*SQUARESIZE+SQUARESIZE/2)), RADIUS)
-	pygame.display.update()
+    def drop_piece_top_column(self, col):
+        row = self.get_next_open_row(col)
+        piece = self.get_to_move()
+        self.drop_piece(self, col, row, piece)
 
 
-board = create_board()
-print_board(board)
-game_over = False
-turn = 0
+    def drop_piece(self, row, col, piece):
+        self.board[row][col] = piece
+        self.turn = self.OPPONENT[self.turn]
 
-pygame.init()
+    def retract_piece(self, row, col):
+        self.board[row][col] = self.EMPTY
+        self.turn = self.OPPONENT[self.turn]
 
-SQUARESIZE = 100
+    def is_valid_location(self, col):
+        return self.board[self.ROW_COUNT - 1][col] == 0
 
-width = COLUMN_COUNT * SQUARESIZE
-height = (ROW_COUNT+1) * SQUARESIZE
+    def get_next_open_row(self, col):
+        for r in range(self.ROW_COUNT):
+            if self.board[r][col] == 0:
+                return r
 
-size = (width, height)
+    def print_board(self):
+        print(np.flip(self.board, 0))
 
-RADIUS = int(SQUARESIZE/2 - 5)
+    def winning_move(self, piece):
+        # Check horizontal locations for win
+        for c in range(self.COLUMN_COUNT - 3):
+            for r in range(self.ROW_COUNT):
+                if (
+                    self.board[r][c] == piece
+                    and self.board[r][c + 1] == piece
+                    and self.board[r][c + 2] == piece
+                    and self.board[r][c + 3] == piece
+                ):
+                    return True
 
-screen = pygame.display.set_mode(size)
-draw_board(board)
-pygame.display.update()
+        # Check vertical locations for win
+        for c in range(self.COLUMN_COUNT):
+            for r in range(self.ROW_COUNT - 3):
+                if (
+                    self.board[r][c] == piece
+                    and self.board[r + 1][c] == piece
+                    and self.board[r + 2][c] == piece
+                    and self.board[r + 3][c] == piece
+                ):
+                    return True
 
-myfont = pygame.font.SysFont("monospace", 75)
+        # Check positively sloped diaganols
+        for c in range(self.COLUMN_COUNT - 3):
+            for r in range(self.ROW_COUNT - 3):
+                if (
+                    self.board[r][c] == piece
+                    and self.board[r + 1][c + 1] == piece
+                    and self.board[r + 2][c + 2] == piece
+                    and self.board[r + 3][c + 3] == piece
+                ):
+                    return True
 
-while not game_over:
-
-	for event in pygame.event.get():
-		if event.type == pygame.QUIT:
-			sys.exit()
-
-		if event.type == pygame.MOUSEMOTION:
-			pygame.draw.rect(screen, BLACK, (0,0, width, SQUARESIZE))
-			posx = event.pos[0]
-			if turn == 0:
-				pygame.draw.circle(screen, RED, (posx, int(SQUARESIZE/2)), RADIUS)
-			else: 
-				pygame.draw.circle(screen, YELLOW, (posx, int(SQUARESIZE/2)), RADIUS)
-		pygame.display.update()
-
-		if event.type == pygame.MOUSEBUTTONDOWN:
-			pygame.draw.rect(screen, BLACK, (0,0, width, SQUARESIZE))
-			#print(event.pos)
-			# Ask for Player 1 Input
-			if turn == 0:
-				posx = event.pos[0]
-				col = int(math.floor(posx/SQUARESIZE))
-
-				if is_valid_location(board, col):
-					row = get_next_open_row(board, col)
-					drop_piece(board, row, col, 1)
-
-					if winning_move(board, 1):
-						label = myfont.render("Player 1 wins!!", 1, RED)
-						screen.blit(label, (40,10))
-						game_over = True
+        # Check negatively sloped diaganols
+        for c in range(self.COLUMN_COUNT - 3):
+            for r in range(3, self.ROW_COUNT):
+                if (
+                    self.board[r][c] == piece
+                    and self.board[r - 1][c + 1] == piece
+                    and self.board[r - 2][c + 2] == piece
+                    and self.board[r - 3][c + 3] == piece
+                ):
+                    return True
 
 
-			# # Ask for Player 2 Input
-			else:				
-				posx = event.pos[0]
-				col = int(math.floor(posx/SQUARESIZE))
+    def is_terminal_node(self):
+        return (
+            self.winning_move(self.PLAYER_1_PIECE)
+            or self.winning_move(self.PLAYER_2_PIECE)
+            or len(self.get_valid_locations()) == 0
+        )
 
-				if is_valid_location(board, col):
-					row = get_next_open_row(board, col)
-					drop_piece(board, row, col, 2)
+    def get_valid_locations(self):
+        valid_locations = []
+        for col in range(self.COLUMN_COUNT):
+            if self.is_valid_location(col):
+                valid_locations.append(col)
+        return valid_locations
 
-					if winning_move(board, 2):
-						label = myfont.render("Player 2 wins!!", 1, YELLOW)
-						screen.blit(label, (40,10))
-						game_over = True
-
-			print_board(board)
-			draw_board(board)
-
-			turn += 1
-			turn = turn % 2
-
-			if game_over:
-				pygame.time.wait(3000)
+    def get_to_move(self):
+        return self.turn

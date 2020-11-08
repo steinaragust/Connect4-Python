@@ -1,0 +1,56 @@
+import utils
+import mcts
+import math
+
+#
+# Add code as needed, but do not change the interface.
+#
+
+
+class MCTSAgent:
+    def __init__(self, params):
+        self.states = {}
+        self.chosen_move = 0
+        self.C = 0.4
+        self.counter = 0
+        # Constants
+        self.params = params
+        self.alpha = 0.01
+        self.interval = 100000
+        return
+
+    def name(self):
+        """ Return agent's name."""
+        return "Agent_John"
+
+    # We don't reset anything. The agent should perform better when he has
+    # more knowledge about the state space at the beginning of a new game.
+    # And we have seen that resetting the state space at the beginning of
+    # a new game, does that exactly for us.
+    # This might be a problem for memory when running more games, but for
+    # our report we limit that to 100 games 6x6, which has not been a problem
+    # for that setup.
+    def reset(self):
+        """This function clears your internal data-structures, so the next
+        call to play() starts with a fresh state (ie., no history information).
+        """
+        return
+
+    def play(self, game, check_abort):
+        """Returns the "best" move to play in the current <game>-state, after some deliberation (<check_abort>)."""
+        moves = game.generate()
+
+        if moves:
+            try:
+                self.chosen_move = 0
+                self.version(game, check_abort, self)
+            # Time is over, in the advanced version we decay our C between X number simulation moves.
+            # We return the move that the agent tells us is most promising.
+            except Exception:
+                if self.advanced:
+                    if self.counter >= self.interval:
+                        self.C *= 0.9
+                        self.counter = 0
+                return (moves[self.chosen_move], 0)
+        else:
+            return utils.NoMove, 0
