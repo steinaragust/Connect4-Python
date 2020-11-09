@@ -10,7 +10,7 @@ class Connect4:
     PLAYER_1_PIECE = 1
     PLAYER_2_PIECE = 2
 
-    def __init__(self, params):
+    def __init__(self):
         self.ROW_COUNT = 6
         self.COLUMN_COUNT = 7
 
@@ -39,18 +39,17 @@ class Connect4:
         board = np.zeros((self.ROW_COUNT, self.COLUMN_COUNT))
         return board
 
-    def drop_piece_top_column(self, col):
+    def drop_piece_in_column(self, col):
         row = self.get_next_open_row(col)
-        piece = self.get_to_move()
-        self.drop_piece(self, col, row, piece)
+        piece = self.get_piece()
+        self.set_piece(row, col, piece)
 
+    def retract_piece_in_column(self, col):
+        row = self.get_next_open_row(col)
+        self.set_piece((self.ROW_COUNT if row is None else row) - 1, col, self.EMPTY)
 
-    def drop_piece(self, row, col, piece):
+    def set_piece(self, row, col, piece):
         self.board[row][col] = piece
-        self.turn = self.OPPONENT[self.turn]
-
-    def retract_piece(self, row, col):
-        self.board[row][col] = self.EMPTY
         self.turn = self.OPPONENT[self.turn]
 
     def is_valid_location(self, col):
@@ -64,8 +63,9 @@ class Connect4:
     def print_board(self):
         print(np.flip(self.board, 0))
 
-    def winning_move(self, piece):
+    def winning_move(self):
         # Check horizontal locations for win
+        piece = self.get_piece()
         for c in range(self.COLUMN_COUNT - 3):
             for r in range(self.ROW_COUNT):
                 if (
@@ -112,8 +112,7 @@ class Connect4:
 
     def is_terminal_node(self):
         return (
-            self.winning_move(self.PLAYER_1_PIECE)
-            or self.winning_move(self.PLAYER_2_PIECE)
+            self.winning_move()
             or len(self.get_valid_locations()) == 0
         )
 
