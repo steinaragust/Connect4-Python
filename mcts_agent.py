@@ -3,7 +3,6 @@ import tree
 import utils
 import random
 
-
 class MCTSAgent:
     def __init__(self, params):
         self._params = params
@@ -11,7 +10,6 @@ class MCTSAgent:
         self._name = self._params.get('name')
         if self._name is None:
             self._name = "mc_agent"
-        self._board = None
         self._model = params.get('model')
         return
 
@@ -41,8 +39,6 @@ class MCTSAgent:
         def visits(q, i):
             return q[i].n
 
-        if self._board is None:
-            self._board = game.get_board()
         self.reset()
         if self.tree is None:
             self.tree = tree.Tree()
@@ -73,4 +69,5 @@ class MCTSAgent:
         policy = [p/total for p in policy]
 
         # tree.depth_first_traversal(self.tree, self.tree.root(), 0, display)
-        return node_label.moves[max_i], node_label.q[max_i].avg, max_i, node_label.moves, policy, node_label.q
+        return None, node_label.moves[max_i]
+        #return node_label.moves[max_i], node_label.q[max_i].avg, max_i, node_label.moves, policy, node_label.q

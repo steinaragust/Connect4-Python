@@ -1,6 +1,7 @@
 from connect4_with_ai_vs_ai import MC_AI, AI, play_game
 import connect4
 import alphabeta_agent
+import mcts_agent
 from timeit import default_timer as timer
 import copy
 import utils
@@ -14,26 +15,31 @@ def play_a_game(game, A):
     A[0].reset()
     A[1].reset()
     while not game.is_terminal_node():
-        value, column = A[n % 2].play(copy.deepcopy(game), utils.CheckAbort(time))
+        _, column = A[n % 2].play(copy.deepcopy(game), utils.CheckAbort(time))
         game.drop_piece_in_column(column)
+        #if (A[n % 2].name() == 'AB'):
+            #print(game.get_board())
         n += 1
-    if game.get_to_move() == game.PLAYER_1:
-        ScorePlayer["Player2"] += 1
-        ScoreAgent[A[1].name()] += 1
+    if game.winning_move():
+        if game.get_to_move() == game.PLAYER_1:
+            ScorePlayer["Player2"] += 1
+            ScoreAgent[A[1].name()] += 1
+        else:
+            ScorePlayer["Player1"] += 1
+            ScoreAgent[A[0].name()] += 1
     else:
-        ScorePlayer["Player1"] += 1
-        ScoreAgent[A[0].name()] += 1
+        ScorePlayer["Draws"] += 1
 
 
 ap = argparse.ArgumentParser()
 ap.add_argument(
     "-g",
     "--games",
-    default=2,
+    default=1,
     help="Number of games to play.",
     type=int,
 )
-ap.add_argument("-t", "--time", default=0.1, help="Max deliberation time.", type=float)
+ap.add_argument("-t", "--time", default=1, help="Max deliberation time.", type=float)
 ap.add_argument(
     "-d",
     "--debug",
@@ -42,7 +48,7 @@ ap.add_argument(
     action="store_true",
 )
 ap.add_argument(
-    "-i", "--iterdepth", default=5, help="Max iteration-depth for AB.", type=int
+    "-i", "--iterdepth", default=0, help="Max iteration-depth for AB.", type=int
 )
 ap.add_argument(
     "-s", "--simulations", default=0, help="Max number of MCTS simulations.", type=int
@@ -64,14 +70,15 @@ games = args['games']
 
 game = connect4.Connect4()
 
-ab_agent_1_params = {"agent_name": "AB1"}
-ab_agent_2_params = {"agent_name": "AB2"}
+ab_agent_1_params = {"name": "AB"}
+ab_agent_2_params = {"name": "MCTS"}
 
-agents = [alphabeta_agent.AlphaBetaAgent(ab_agent_1_params), alphabeta_agent.AlphaBetaAgent(ab_agent_2_params)]
+#agents = [alphabeta_agent.AlphaBetaAgent(ab_agent_1_params), alphabeta_agent.AlphaBetaAgent(ab_agent_2_params)]
+agents = [alphabeta_agent.AlphaBetaAgent(ab_agent_1_params), mcts_agent.MCTSAgent(ab_agent_2_params)]
 
 ScoreAgent = {agents[0].name(): 0, agents[1].name(): 0}
 
-ScorePlayer = {"Player1": 0, "Player2": 0}
+ScorePlayer = {"Player1": 0, "Player2": 0, "Draws": 0}
 
 start_time = timer()
 

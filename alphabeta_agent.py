@@ -4,12 +4,12 @@ import alphabeta
 class AlphaBetaAgent:
     def __init__(self, params):
         self._params = params
-        self.agent_name = params['agent_name']
+        self._name = params['name']
         return
 
     def name(self):
         """ Return agent's name."""
-        return self.agent_name
+        return self._name
 
     def reset(self):
         """ This function clears your internal data-structures, so the next

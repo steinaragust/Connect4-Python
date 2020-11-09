@@ -16,10 +16,9 @@ class NodeLabel:
 def simulate(game, tree, advanced_mode, model):
     def predict(move):
         game.drop_piece_in_column(move)
-        value = model.predict(game.get_board())[0 if game.get_to_move == game.PLAYER_1 else game.PLAYER_2]
+        value = model.predict(game.get_board())[0 if game.get_to_move == game.PLAYER_1 else 2]
         game.retract_piece_in_column(move)
         return value
-
 
     def select(node_id):
         def puct(label, i):
@@ -75,7 +74,6 @@ def simulate(game, tree, advanced_mode, model):
         for i, m in enumerate(label.moves):
             label.p[i] = predict(m)
         return utils.score_position(game)
-
 
     def traverse(depth, node_id, parent_id):
         if node_id is None:
