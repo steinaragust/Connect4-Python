@@ -5,7 +5,6 @@ import random
 
 
 class MCTSAgent:
-
     def __init__(self, params):
         self._params = params
         self.tree = None
@@ -26,9 +25,6 @@ class MCTSAgent:
         """
         self.tree = None
         return
-
-    def predict(self, board, player):
-        self.model.predict(board, player)
 
     def play(self, game, check_abort):
         """ Returns the "best" move to play in the current <game>-state, after some deliberation (<check_abort>).

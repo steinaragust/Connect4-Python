@@ -13,8 +13,14 @@ class NodeLabel:
         self.p = [1.0 for _ in range(self.len)]
         return
 
-
 def simulate(game, tree, advanced_mode, model):
+    def predict(move):
+        game.drop_piece_in_column(move)
+        value = model.predict(game.get_board())[0 if game.get_to_move == game.PLAYER_1 else game.PLAYER_2]
+        game.retract_piece_in_column(move)
+        return value
+
+
     def select(node_id):
         def puct(label, i):
             if label.q[i].n == 0:
@@ -28,7 +34,7 @@ def simulate(game, tree, advanced_mode, model):
 
         func = puct if advanced_mode and model else uct
         node_label = tree.node_label(node_id)
-        max_i = utils.argmax(node_label, len(node_label.moves), uct, utils.Infinity)
+        max_i = utils.argmax(node_label, len(node_label.moves), func, utils.Infinity)
         return max_i, node_label.moves[max_i]
 
     def playout(g):
@@ -43,7 +49,7 @@ def simulate(game, tree, advanced_mode, model):
         while not g.is_terminal_node():
             moves = g.get_valid_locations()
             if advanced_mode:
-                move = moves[utils.argmax(moves, len(moves), learn.prior_no, utils.Infinity)]
+                move = moves[utils.argmax(moves, len(moves), predict, utils.Infinity)]
             else:
                 move = moves[random.randint(0, len(moves) - 1)]
             g.drop_piece_in_column(move)
@@ -67,8 +73,8 @@ def simulate(game, tree, advanced_mode, model):
         # In AZ, would call NN here to get priors and value.
         label = tree.node_label(node_id)
         for i, m in enumerate(label.moves):
-            label.p[i] = learn.prior(m)
-        return learn.state_value(game)
+            label.p[i] = predict(m)
+        return utils.score_position(game)
 
 
     def traverse(depth, node_id, parent_id):

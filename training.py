@@ -1,5 +1,4 @@
-from keras import layers
-from keras import utils as keras_utils
+from tensorflow.keras import layers, utils as keras_utils
 
 import numpy as np
 from timeit import default_timer as timer
