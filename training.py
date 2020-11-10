@@ -1,65 +1,93 @@
-from tensorflow.keras import layers, utils as keras_utils
+import tensorflow.keras as keras
 
 import numpy as np
 from timeit import default_timer as timer
 import play
 import mcts_agent
 import connect4
-import utils
 
 numberOfInputs = 42
-numberOfOutputs = 3
+numberOfOutputs = 7
 batchSize = 50
 epochs = 100
 
+def output_represention(moves, policy):
+  tensor = np.zeros(7)
+  for i, p in enumerate(policy):
+    tensor[moves[i]] = p
+  return tensor
+
 def create_model():
-  model = layers.Sequential()
-  model.add(layers.Dense(42, activation='relu', input_shape=(numberOfInputs,)))
-  model.add(layers.Dense(42, activation='relu'))
-  model.add(layers.Dense(numberOfOutputs, activation='softmax'))
+  model = keras.Sequential()
+  model.add(keras.layers.Dense(42, activation='relu', input_shape=(6,7)))
+  model.add(keras.layers.Dense(42, activation='relu'))
+  model.add(keras.layers.Dense(numberOfOutputs, activation='softmax'))
   model.compile(loss='categorical_crossentropy', optimizer="rmsprop", metrics=['accuracy'])
   return model
 
-# results(boardHistory, gameResult) fyrir hvernig og einn leik
-def train_model(results):
-  global model
-  input = []
-  output = []
-  for data in results:
-    input.append(data[1])
-    output.append(data[0])
-  X = np.array(input).reshape((-1, numberOfInputs))
-  y = keras_utils.to_categorical(output, num_classes=3)
-  limit = int(0.8 * len(X))
-  X_train = X[:limit]
-  X_test = X[limit:]
-  y_train = y[:limit]
-  y_test = y[limit:]
-  model.fit(X_train, y_train, validation_data=(X_test, y_test), epochs=epochs, batch_size=batchSize)
+
+def train_model(model, X, Y):
+  X = np.array(X)
+  Y = np.array(Y)
+  model.fit(X, Y, epochs=20)
 
 def train():
+  def to_training_data(game, result, agentname):
+    X = []
+    Y = []
+    draws = result[4]
+    if result[0][0] == agentname:
+      outcome = result[3]
+      agent = 0
+    elif result[0][1] == agentname:
+      outcome = -result[3]
+      agent = 1
+    else:
+      print('Oops, agent not playing!')
+      return X, Y
+    game.setup()
+    for i, return_value in enumerate(result[2]):
+      move, value, max_i, moves, policy, q = return_value
+      if i % 2 == agent:
+        X.append(game.get_board())
+        Y.append(output_represention(moves, policy))
+      game.make(move)
+    return X, Y
+
+
   def training_games(agents, num_games):
     # global model_evaluator
     # model.save('model.h5')
     # model_evaluator = load_model('model.h5',compile=False)
     start_time = timer()
-    all_games_history, all_games_result = play.play_a_match(game, agents, num_games, 0)
+    game_records = play.play_a_match(game, agents, num_games, 0)
     print("Time:", timer() - start_time)
     print('Match result')
-    return all_games_history, all_games_result
+    score_color, score_agent, draws = play.score_game_records(game_records, agents)
+    print(score_color)
+    print(score_agent)
+    print('Draws: %d' % (draws))
+    return game_records
 
+  X = []
+  Y = []
   global model
-  model = create_model()
-  for round in range(1, 3):
+  for _ in range(1, 3):
     results = training_games(agents, 5)
-    train_model(results)
+    for result in results:
+      x, y = to_training_data(game, result, agents[0].name())
+      X.extend(x)
+      Y.extend(y)
+    train_model(model, X, Y)
+  print('hi')
   return
 
 game = connect4.Connect4()
-agent1_param = {'name':'mc_1', 'advanced': True, 'simulations':250, 'explore': 8, 'model': priors_evaluator}
-agent2_param = {'name':'mc_2', 'advanced': True, 'simulations':250, 'explore': 8}
+model = None
+model = create_model()
+agent1_param = {'name':'mc_AZ', 'simulations':250, 'explore': 8, 'model': model}
+agent2_param = {'name':'mc_standard', 'advanced': True, 'simulations':250, 'explore': 8}
 agents = [mcts_agent.MCTSAgent(agent1_param), mcts_agent.MCTSAgent(agent2_param)]
 agents_eval = agents
 
-model = None
 train()

@@ -69,5 +69,4 @@ class MCTSAgent:
         policy = [p/total for p in policy]
 
         # tree.depth_first_traversal(self.tree, self.tree.root(), 0, display)
-        return None, node_label.moves[max_i]
-        #return node_label.moves[max_i], node_label.q[max_i].avg, max_i, node_label.moves, policy, node_label.q
+        return node_label.moves[max_i], node_label.q[max_i].avg, max_i, node_label.moves, policy, node_label.q

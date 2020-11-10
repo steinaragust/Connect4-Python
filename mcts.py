@@ -2,6 +2,7 @@ import math
 import random
 import copy
 import utils
+import numpy as np
 
 
 class NodeLabel:
@@ -14,11 +15,10 @@ class NodeLabel:
         return
 
 def simulate(game, tree, advanced_mode, model):
-    def predict(move):
-        game.drop_piece_in_column(move)
-        value = model.predict(game.get_board())[0 if game.get_to_move == game.PLAYER_1 else 2]
-        game.retract_piece_in_column(move)
-        return value
+    def predict():
+        x = [game.get_board()]
+        priors = model(np.array(x), training=False)
+        return priors
 
     def select(node_id):
         def puct(label, i):
@@ -36,6 +36,10 @@ def simulate(game, tree, advanced_mode, model):
         max_i = utils.argmax(node_label, len(node_label.moves), func, utils.Infinity)
         return max_i, node_label.moves[max_i]
 
+    def index(data, i):
+        return data[i]
+
+
     def playout(g):
         # def bias(moves, i):
         #     m = moves[i]
@@ -43,12 +47,12 @@ def simulate(game, tree, advanced_mode, model):
         #     if to_row == 0 or to_row == g.get_board().rows() - 1:
         #         return utils.Infinity  # A move winning immediately.
         #     return 0 if m[2] == g.get_board().NoPce else 1  # A non-capture vs. capture move.
-
         player = g.get_to_move()
         while not g.is_terminal_node():
             moves = g.get_valid_locations()
+            predictions = predict()
             if advanced_mode:
-                move = moves[utils.argmax(moves, len(moves), predict, utils.Infinity)]
+                move = moves[utils.argmax(predictions, len(moves), index, utils.Infinity)]
             else:
                 move = moves[random.randint(0, len(moves) - 1)]
             g.drop_piece_in_column(move)
@@ -72,7 +76,7 @@ def simulate(game, tree, advanced_mode, model):
         # In AZ, would call NN here to get priors and value.
         label = tree.node_label(node_id)
         for i, m in enumerate(label.moves):
-            label.p[i] = predict(m)
+            label.p[i] = predict()[i]
         return utils.score_position(game)
 
     def traverse(depth, node_id, parent_id):

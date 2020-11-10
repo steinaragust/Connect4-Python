@@ -18,12 +18,16 @@ class Connect4:
         self.setup()
         return
 
+    def get_move_no(self):
+        return self._no_moves
+
     def get_board(self):
         return self.board
 
     def setup(self):
         self.board = self.create_board()
         self.turn = self.PLAYER_1
+        self._no_moves = 0
 
     def get_piece(self):
         if self.turn == self.PLAYER_1:
@@ -43,10 +47,12 @@ class Connect4:
         row = self.get_next_open_row(col)
         piece = self.get_piece()
         self.set_piece(row, col, piece)
+        self._no_moves += 1
 
     def retract_piece_in_column(self, col):
         row = self.get_next_open_row(col)
         self.set_piece((self.ROW_COUNT if row is None else row) - 1, col, self.EMPTY)
+        self._no_moves -= 1
 
     def set_piece(self, row, col, piece):
         self.board[row][col] = piece
