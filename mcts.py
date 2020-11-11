@@ -16,9 +16,11 @@ class NodeLabel:
 
 def simulate(game, tree, advanced_mode, model):
     def predict():
-        x = [game.get_board()]
-        priors = model(np.array(x), training=False)
-        return priors
+        x = game.get_board().flatten()
+        x = np.reshape(x, (1, -1))
+        priors = model.predict(x)
+        # priors = model(x, training=False)
+        return priors[0]
 
     def select(node_id):
         def puct(label, i):
@@ -39,7 +41,6 @@ def simulate(game, tree, advanced_mode, model):
     def index(data, i):
         return data[i]
 
-
     def playout(g):
         # def bias(moves, i):
         #     m = moves[i]
@@ -50,9 +51,9 @@ def simulate(game, tree, advanced_mode, model):
         player = g.get_to_move()
         while not g.is_terminal_node():
             moves = g.get_valid_locations()
-            predictions = predict()
             if advanced_mode:
-                move = moves[utils.argmax(predictions, len(moves), index, utils.Infinity)]
+                predictions = predict()
+                move = moves.index[np.where(predictions == np.argmax(predictions))]
             else:
                 move = moves[random.randint(0, len(moves) - 1)]
             g.drop_piece_in_column(move)
@@ -75,8 +76,10 @@ def simulate(game, tree, advanced_mode, model):
     def evaluate(node_id):
         # In AZ, would call NN here to get priors and value.
         label = tree.node_label(node_id)
-        for i, m in enumerate(label.moves):
-            label.p[i] = predict()[i]
+        predictions = predict()
+        moves = game.get_valid_locations()
+        for i, m in enumerate(moves):
+            label.p[i] = predictions[m]
         return utils.score_position(game)
 
     def traverse(depth, node_id, parent_id):

@@ -19,14 +19,16 @@ def output_represention(moves, policy):
 
 def create_model():
   model = keras.Sequential()
-  model.add(keras.layers.Dense(42, activation='relu', input_shape=(6,7)))
-  model.add(keras.layers.Dense(42, activation='relu'))
-  model.add(keras.layers.Dense(numberOfOutputs, activation='softmax'))
+  model.add(keras.layers.Dense(42, activation='relu', input_shape=(42,)))
+  model.add(keras.layers.Dense(150, activation='relu'))
+  model.add(keras.layers.Dense(7,  activation='softmax'))
   model.compile(loss='categorical_crossentropy', optimizer="rmsprop", metrics=['accuracy'])
   return model
 
 
 def train_model(model, X, Y):
+  print(X)
+  print(Y)
   X = np.array(X)
   Y = np.array(Y)
   model.fit(X, Y, epochs=20)
@@ -51,8 +53,8 @@ def train():
       if i % 2 == agent:
         X.append(game.get_board())
         Y.append(output_represention(moves, policy))
-      game.make(move)
-    return X, Y
+      game.drop_piece_in_column(move)
+    return np.array(X), np.array(Y)
 
 
   def training_games(agents, num_games):
@@ -73,20 +75,19 @@ def train():
   Y = []
   global model
   for _ in range(1, 3):
-    results = training_games(agents, 5)
+    results = training_games(agents, 1)
     for result in results:
       x, y = to_training_data(game, result, agents[0].name())
       X.extend(x)
       Y.extend(y)
-    train_model(model, X, Y)
-  print('hi')
+    train_model(model, np.array(X), np.array(Y))
   return
 
 game = connect4.Connect4()
 model = None
 model = create_model()
-agent1_param = {'name':'mc_AZ', 'simulations':250, 'explore': 8, 'model': model}
-agent2_param = {'name':'mc_standard', 'advanced': True, 'simulations':250, 'explore': 8}
+agent1_param = {'name':'mc_AZ', 'advanced': True, 'simulations':10, 'explore': 8, 'model': model}
+agent2_param = {'name':'mc_standard', 'simulations':10, 'explore': 8}
 agents = [mcts_agent.MCTSAgent(agent1_param), mcts_agent.MCTSAgent(agent2_param)]
 agents_eval = agents
 
