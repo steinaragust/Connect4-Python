@@ -20,15 +20,13 @@ def output_represention(moves, policy):
 def create_model():
   model = keras.Sequential()
   model.add(keras.layers.Dense(42, activation='relu', input_shape=(42,)))
-  model.add(keras.layers.Dense(150, activation='relu'))
+  model.add(keras.layers.Dense(42, activation='relu'))
   model.add(keras.layers.Dense(7,  activation='softmax'))
   model.compile(loss='categorical_crossentropy', optimizer="rmsprop", metrics=['accuracy'])
   return model
 
 
 def train_model(model, X, Y):
-  print(X)
-  print(Y)
   X = np.array(X)
   Y = np.array(Y)
   model.fit(X, Y, epochs=20)
@@ -37,21 +35,21 @@ def train():
   def to_training_data(game, result, agentname):
     X = []
     Y = []
-    draws = result[4]
+    draws = result[3]
     if result[0][0] == agentname:
-      outcome = result[3]
+      outcome = result[2]
       agent = 0
     elif result[0][1] == agentname:
-      outcome = -result[3]
+      outcome = -result[2]
       agent = 1
     else:
       print('Oops, agent not playing!')
       return X, Y
     game.setup()
-    for i, return_value in enumerate(result[2]):
+    for i, return_value in enumerate(result[1]):
       move, value, max_i, moves, policy, q = return_value
       if i % 2 == agent:
-        X.append(game.get_board())
+        X.append(game.get_board().flatten())
         Y.append(output_represention(moves, policy))
       game.drop_piece_in_column(move)
     return np.array(X), np.array(Y)

@@ -3,7 +3,6 @@ import copy
 
 def play_a_game(game, A, time):
     game.setup()
-    board_history = []
     return_values = []
     # if output:
     #     print(game)
@@ -15,7 +14,6 @@ def play_a_game(game, A, time):
         move, value, max_i, moves, policy, q = A[n % 2].play(copy.deepcopy(game), utils.CheckAbort(time))
         print('end move')
         return_values.append((move, value, max_i, moves, policy, q))
-        board_history.append(game.get_board())
         game.drop_piece_in_column(move)
         n += 1
     result = 0
@@ -27,7 +25,7 @@ def play_a_game(game, A, time):
             result = 1
     else:
         draws += 1
-    return [A[0].name(), A[1].name()], board_history, return_values, result, draws
+    return [A[0].name(), A[1].name()], return_values, result, draws
 
 def play_a_match(game, agents, num_games, time):
     game_records = []
