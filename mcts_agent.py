@@ -2,6 +2,7 @@ import mcts
 import tree
 import utils
 import random
+import tensorflow.keras as keras
 
 class MCTSAgent:
     def __init__(self, params):
@@ -10,7 +11,7 @@ class MCTSAgent:
         self._name = self._params.get('name')
         if self._name is None:
             self._name = "mc_agent"
-        self._model = params.get('model')
+
         return
 
     def name(self):
@@ -50,7 +51,7 @@ class MCTSAgent:
 
         num_simulations = 0
         while not check_abort.do_abort() and (max_num_simulations == 0 or num_simulations <= max_num_simulations):
-            mcts.simulate(game, self.tree, in_advanced_mode, self._model)
+            mcts.simulate(game, self.tree, in_advanced_mode)
             # tree.depth_first_traversal(self.tree, self.tree.root(), 0, display)
             num_simulations += 1
 
@@ -66,7 +67,10 @@ class MCTSAgent:
         total = 0
         for p in policy:
             total += p
-        policy = [p/total for p in policy]
+        if total > 0:
+            policy = [p/total for p in policy]
+
+
 
         # tree.depth_first_traversal(self.tree, self.tree.root(), 0, display)
         return node_label.moves[max_i], node_label.q[max_i].avg, max_i, node_label.moves, policy, node_label.q

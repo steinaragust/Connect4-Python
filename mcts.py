@@ -3,7 +3,7 @@ import random
 import copy
 import utils
 import numpy as np
-
+import tensorflow.keras as keras
 
 class NodeLabel:
     def __init__(self, moves):
@@ -14,8 +14,9 @@ class NodeLabel:
         self.p = [1.0 for _ in range(self.len)]
         return
 
-def simulate(game, tree, advanced_mode, model):
+def simulate(game, tree, advanced_mode):
     def predict():
+        model = keras.models.load_model("model.h5",compile=False)
         x = game.get_board().flatten()
         x = np.reshape(x, (1, -1))
         priors = model.predict(x)
@@ -33,7 +34,7 @@ def simulate(game, tree, advanced_mode, model):
                 return utils.Infinity
             return label.q[i].avg + 0.2 * (math.sqrt(math.log(label.n) / label.q[i].n))
 
-        func = puct if advanced_mode and model else uct
+        func = puct if advanced_mode else uct
         node_label = tree.node_label(node_id)
         max_i = utils.argmax(node_label, len(node_label.moves), func, utils.Infinity)
         return max_i, node_label.moves[max_i]
@@ -84,7 +85,7 @@ def simulate(game, tree, advanced_mode, model):
 
     def traverse(depth, node_id, parent_id):
         if node_id is None:
-            if advanced_mode and model is not None:
+            if advanced_mode:
                 new_node_id = expand(parent_id)
                 value = evaluate(new_node_id)
             else:

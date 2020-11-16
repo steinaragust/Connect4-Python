@@ -1,5 +1,8 @@
 import tensorflow.keras as keras
-
+from tensorflow.keras.utils import to_categorical
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Conv2D, MaxPooling2D, Flatten, Dropout, BatchNormalization
+from tensorflow.keras.optimizers import Nadam,Adam
 import numpy as np
 from timeit import default_timer as timer
 import play
@@ -18,18 +21,19 @@ def output_represention(moves, policy):
   return tensor
 
 def create_model():
-  model = keras.Sequential()
-  model.add(keras.layers.Dense(42, activation='relu', input_shape=(42,)))
-  model.add(keras.layers.Dense(42, activation='relu'))
-  model.add(keras.layers.Dense(7,  activation='softmax'))
-  model.compile(loss='categorical_crossentropy', optimizer="rmsprop", metrics=['accuracy'])
+  model = Sequential( [
+            Conv2D(filters=32, kernel_size=1, activation='relu', input_shape=(1,7,6) ,data_format="channels_last"),
+            MaxPooling2D(pool_size=1),  
+            Flatten(),
+            Dense(7, activation='softmax') ] )
+  model.compile( optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'] )
   return model
 
 
 def train_model(model, X, Y):
   X = np.array(X)
   Y = np.array(Y)
-  model.fit(X, Y, epochs=20)
+  model.fit(X, Y, epochs=epochs)
 
 def train():
   def to_training_data(game, result, agentname):
@@ -49,7 +53,8 @@ def train():
     for i, return_value in enumerate(result[1]):
       move, value, max_i, moves, policy, q = return_value
       if i % 2 == agent:
-        X.append(game.get_board().flatten())
+        X.append(game.get_board()/2)
+        print(game.get_board())
         Y.append(output_represention(moves, policy))
       game.drop_piece_in_column(move)
     return np.array(X), np.array(Y)
@@ -90,3 +95,4 @@ agents = [mcts_agent.MCTSAgent(agent1_param), mcts_agent.MCTSAgent(agent2_param)
 agents_eval = agents
 
 train()
+model.save('model.h5')
