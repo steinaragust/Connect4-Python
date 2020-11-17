@@ -27,9 +27,11 @@ def create_model():
   model = keras.Sequential()
   model.add(keras.layers.Dense(42, activation='relu', input_shape=(42,)))
   model.add(BatchNormalization())
-  model.add(keras.layers.Dense(336, activation='relu'))
+  model.add(keras.layers.Dense(512, activation='relu'))
   model.add(BatchNormalization())
-  model.add(keras.layers.Dense(168, activation='relu'))
+  model.add(keras.layers.Dense(512, activation='relu'))
+  model.add(BatchNormalization())
+  model.add(keras.layers.Dense(64, activation='relu'))
   model.add(BatchNormalization())
   model.add(keras.layers.Dense(7,  activation='softmax'))
   model.compile(loss='categorical_crossentropy', optimizer="nadam", metrics=['accuracy'])
@@ -90,8 +92,8 @@ def train():
   X = []
   Y = []
   global model
-  for _ in range(1, 40):
-    results = training_games(agents, 10)
+  for _ in range(1, 20):
+    results = training_games(agents, 100)
     for result in results:
       x, y = to_training_data(game, result, agents[0].name())
       X.extend(x)
@@ -102,7 +104,7 @@ def train():
 game = connect4.Connect4()
 model = None
 model = create_model()
-agent1_param = {'name':'mc_AZ', 'advanced': False, 'simulations':250, 'explore': 0, 'model': model}
+agent1_param = {'name':'mc_AZ', 'advanced': False, 'simulations':250, 'explore': 8, 'model': model}
 agent2_param = {'name':'mc_standard', 'simulations':250, 'explore': 8}
 agents = [mcts_agent.MCTSAgent(agent1_param), mcts_agent.MCTSAgent(agent2_param)]
 agents_eval = agents

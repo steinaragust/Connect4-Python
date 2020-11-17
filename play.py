@@ -10,9 +10,9 @@ def play_a_game(game, A, time):
     A[0].reset()
     A[1].reset()
     while not game.is_terminal_node():
-        #print('starting move for: ', A[n % 2].name())
+        print('starting move for: ', A[n % 2].name())
         move, value, max_i, moves, policy, q = A[n % 2].play(copy.deepcopy(game), utils.CheckAbort(time))
-        #print('end move')
+        print('end move')
         return_values.append((move, value, max_i, moves, policy, q))
         game.drop_piece_in_column(move)
         n += 1
