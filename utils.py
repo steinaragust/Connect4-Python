@@ -42,14 +42,14 @@ def evaluate_window(game, window):
     piece = game.get_piece()
     opp_piece = game.get_opponent_piece()
 
-    if window.count(opp_piece) == 4:
+    if window.count(piece) == 4:
         score += 100
-    elif window.count(opp_piece) == 3 and window.count(game.EMPTY) == 1:
+    elif window.count(piece) == 3 and window.count(game.EMPTY) == 1:
         score += 5
-    elif window.count(opp_piece) == 2 and window.count(game.EMPTY) == 2:
+    elif window.count(piece) == 2 and window.count(game.EMPTY) == 2:
         score += 2
 
-    if window.count(piece) == 3 and window.count(game.EMPTY) == 1:
+    if window.count(opp_piece) == 3 and window.count(game.EMPTY) == 1:
         score -= 4
 
     return score
@@ -62,8 +62,6 @@ def score_position(game):
     center_array = [int(i) for i in list(board[:, game.COLUMN_COUNT // 2])]
     center_count = center_array.count(game.get_opponent_piece())
     score += center_count * 3
-
-    turn = game.get_to_move()
 
     ## Score Horizontal
     for r in range(game.ROW_COUNT):
@@ -90,4 +88,4 @@ def score_position(game):
             window = [board[r + 3 - i][c + i] for i in range(game.WINDOW_LENGTH)]
             score += evaluate_window(game, window)
 
-    return -score if turn == game.PLAYER_1 else score
+    return score

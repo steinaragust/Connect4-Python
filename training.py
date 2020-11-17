@@ -3,11 +3,14 @@ from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Conv2D, MaxPooling2D, Flatten, Dropout, BatchNormalization
 from tensorflow.keras.optimizers import Nadam,Adam
+import tensorflow as tf
 import numpy as np
 from timeit import default_timer as timer
 import play
 import mcts_agent
 import connect4
+
+tf.autograph.set_verbosity(3)
 
 numberOfInputs = 42
 numberOfOutputs = 7
@@ -88,7 +91,8 @@ def train():
 game = connect4.Connect4()
 model = None
 model = create_model()
-agent1_param = {'name':'mc_AZ', 'advanced': False, 'simulations':10, 'explore': 8, 'model': model}
+# agent1_param = {'name':'mc_AZ', 'advanced': True, 'simulations':10, 'explore': 8, 'model': model}
+agent1_param = {'name':'mc_AZ', 'simulations':10, 'explore': 8}
 agent2_param = {'name':'mc_standard', 'simulations':10, 'explore': 8}
 agents = [mcts_agent.MCTSAgent(agent1_param), mcts_agent.MCTSAgent(agent2_param)]
 agents_eval = agents

@@ -10,9 +10,9 @@ def play_a_game(game, A, time):
     A[0].reset()
     A[1].reset()
     while not game.is_terminal_node():
-        print('starting move for: ', A[n % 2].name())
+        #print('starting move for: ', A[n % 2].name())
         move, value, max_i, moves, policy, q = A[n % 2].play(copy.deepcopy(game), utils.CheckAbort(time))
-        print('end move')
+        #print('end move')
         return_values.append((move, value, max_i, moves, policy, q))
         game.drop_piece_in_column(move)
         n += 1
@@ -44,10 +44,10 @@ def score_game_records(game_records, agents):
     score_agent = {agents[0].name(): 0, agents[1].name(): 0}
     draws = 0
     for record in game_records:
-        if record[1] == 1:
+        if record[2] == 1:
             score_color['Player1'] += 1
             score_agent[record[0][0]] += 1
-        elif record[1] == -1:
+        elif record[2] == -1:
             score_color['Player2'] += 1
             score_agent[record[0][1]] += 1
         else:

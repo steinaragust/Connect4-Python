@@ -39,8 +39,15 @@ def simulate(game, tree, advanced_mode):
         max_i = utils.argmax(node_label, len(node_label.moves), func, utils.Infinity)
         return max_i, node_label.moves[max_i]
 
-    def index(data, i):
-        return data[i]
+    def bias(game, moves):
+        for m in moves:
+            game.drop_piece_in_column(m)
+            winning_move = game.winning_move()
+            game.retract_piece_in_column(m)
+            if winning_move:
+                return m
+        return None
+
 
     def playout(g):
         # def bias(moves, i):
@@ -52,7 +59,10 @@ def simulate(game, tree, advanced_mode):
         player = g.get_to_move()
         while not g.is_terminal_node():
             moves = g.get_valid_locations()
-            if advanced_mode:
+            winning_move = bias(g, moves)
+            if winning_move is not None:
+                move = winning_move
+            elif advanced_mode:
                 predictions = predict()
                 move = moves.index[np.where(predictions == np.argmax(predictions))]
             else:
