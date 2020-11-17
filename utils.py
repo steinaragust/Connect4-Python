@@ -42,6 +42,8 @@ def evaluate_window(game, window):
     piece = game.get_piece()
     opp_piece = game.get_opponent_piece()
 
+    winning_move = game.winning_move()
+
     if window.count(piece) == 4:
         score += 100
     elif window.count(piece) == 3 and window.count(game.EMPTY) == 1:

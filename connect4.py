@@ -10,6 +10,8 @@ class Connect4:
     PLAYER_1_PIECE = 1
     PLAYER_2_PIECE = 2
 
+    PIECES = [PLAYER_1_PIECE, PLAYER_2_PIECE]
+
     def __init__(self):
         self.ROW_COUNT = 6
         self.COLUMN_COUNT = 7
@@ -71,49 +73,50 @@ class Connect4:
 
     def winning_move(self):
         # Check horizontal locations for win
-        piece = self.get_piece()
-        for c in range(self.COLUMN_COUNT - 3):
-            for r in range(self.ROW_COUNT):
-                if (
-                    self.board[r][c] == piece
-                    and self.board[r][c + 1] == piece
-                    and self.board[r][c + 2] == piece
-                    and self.board[r][c + 3] == piece
-                ):
-                    return True
+        for piece in self.PIECES:
+            for c in range(self.COLUMN_COUNT - 3):
+                for r in range(self.ROW_COUNT):
+                    if (
+                        self.board[r][c] == piece
+                        and self.board[r][c + 1] == piece
+                        and self.board[r][c + 2] == piece
+                        and self.board[r][c + 3] == piece
+                    ):
+                        return True
 
-        # Check vertical locations for win
-        for c in range(self.COLUMN_COUNT):
-            for r in range(self.ROW_COUNT - 3):
-                if (
-                    self.board[r][c] == piece
-                    and self.board[r + 1][c] == piece
-                    and self.board[r + 2][c] == piece
-                    and self.board[r + 3][c] == piece
-                ):
-                    return True
+            # Check vertical locations for win
+            for c in range(self.COLUMN_COUNT):
+                for r in range(self.ROW_COUNT - 3):
+                    if (
+                        self.board[r][c] == piece
+                        and self.board[r + 1][c] == piece
+                        and self.board[r + 2][c] == piece
+                        and self.board[r + 3][c] == piece
+                    ):
+                        return True
 
-        # Check positively sloped diaganols
-        for c in range(self.COLUMN_COUNT - 3):
-            for r in range(self.ROW_COUNT - 3):
-                if (
-                    self.board[r][c] == piece
-                    and self.board[r + 1][c + 1] == piece
-                    and self.board[r + 2][c + 2] == piece
-                    and self.board[r + 3][c + 3] == piece
-                ):
-                    return True
+            # Check positively sloped diaganols
+            for c in range(self.COLUMN_COUNT - 3):
+                for r in range(self.ROW_COUNT - 3):
+                    if (
+                        self.board[r][c] == piece
+                        and self.board[r + 1][c + 1] == piece
+                        and self.board[r + 2][c + 2] == piece
+                        and self.board[r + 3][c + 3] == piece
+                    ):
+                        return True
 
-        # Check negatively sloped diaganols
-        for c in range(self.COLUMN_COUNT - 3):
-            for r in range(3, self.ROW_COUNT):
-                if (
-                    self.board[r][c] == piece
-                    and self.board[r - 1][c + 1] == piece
-                    and self.board[r - 2][c + 2] == piece
-                    and self.board[r - 3][c + 3] == piece
-                ):
-                    return True
+            # Check negatively sloped diaganols
+            for c in range(self.COLUMN_COUNT - 3):
+                for r in range(3, self.ROW_COUNT):
+                    if (
+                        self.board[r][c] == piece
+                        and self.board[r - 1][c + 1] == piece
+                        and self.board[r - 2][c + 2] == piece
+                        and self.board[r - 3][c + 3] == piece
+                    ):
+                        return True
+        return False
 
 
     def is_terminal_node(self):
