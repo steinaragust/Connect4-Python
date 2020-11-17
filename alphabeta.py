@@ -7,11 +7,11 @@ def alphabeta(game, depth, alpha, beta, maximizingPlayer, check_abort):
     is_terminal = game.is_terminal_node()
     if is_terminal:
         if game.winning_move():
-            return None, (1 if maximizingPlayer else -1) * 100000000000000, False
+            return None, (-1 if maximizingPlayer else 1) * 100000000000000, False
         else:  # Game is over, no more valid moves
             return None, 0, False
     if depth == 0:
-        return None, (1 if maximizingPlayer else -1) * utils.score_position(game), False
+        return None, (-1 if maximizingPlayer else 1) * utils.score_position(game), False
     if check_abort.do_abort():
         return None, 0, True
 
