@@ -21,12 +21,11 @@ def output_represention(moves, policy):
   return tensor
 
 def create_model():
-  model = Sequential( [
-            Conv2D(filters=32, kernel_size=1, activation='relu', input_shape=(1,7,6) ,data_format="channels_last"),
-            MaxPooling2D(pool_size=1),  
-            Flatten(),
-            Dense(7, activation='softmax') ] )
-  model.compile( optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'] )
+  model = keras.Sequential()
+  model.add(keras.layers.Dense(42, activation='relu', input_shape=(42,)))
+  model.add(keras.layers.Dense(42, activation='relu'))
+  model.add(keras.layers.Dense(7,  activation='softmax'))
+  model.compile(loss='categorical_crossentropy', optimizer="rmsprop", metrics=['accuracy'])
   return model
 
 
@@ -53,7 +52,7 @@ def train():
     for i, return_value in enumerate(result[1]):
       move, value, max_i, moves, policy, q = return_value
       if i % 2 == agent:
-        X.append(game.get_board()/2)
+        X.append(game.get_board().flatten()/2)
         print(game.get_board())
         Y.append(output_represention(moves, policy))
       game.drop_piece_in_column(move)
@@ -78,7 +77,7 @@ def train():
   Y = []
   global model
   for _ in range(1, 3):
-    results = training_games(agents, 1)
+    results = training_games(agents, 100)
     for result in results:
       x, y = to_training_data(game, result, agents[0].name())
       X.extend(x)
@@ -89,7 +88,7 @@ def train():
 game = connect4.Connect4()
 model = None
 model = create_model()
-agent1_param = {'name':'mc_AZ', 'advanced': True, 'simulations':10, 'explore': 8, 'model': model}
+agent1_param = {'name':'mc_AZ', 'advanced': False, 'simulations':10, 'explore': 8, 'model': model}
 agent2_param = {'name':'mc_standard', 'simulations':10, 'explore': 8}
 agents = [mcts_agent.MCTSAgent(agent1_param), mcts_agent.MCTSAgent(agent2_param)]
 agents_eval = agents
