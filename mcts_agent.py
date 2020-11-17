@@ -69,7 +69,8 @@ class MCTSAgent:
             total += p
         if total > 0:
             policy = [p/total for p in policy]
-
+        print(policy)
+        print(total)
 
 
         # tree.depth_first_traversal(self.tree, self.tree.root(), 0, display)

@@ -23,16 +23,27 @@ def output_represention(moves, policy):
 def create_model():
   model = keras.Sequential()
   model.add(keras.layers.Dense(42, activation='relu', input_shape=(42,)))
-  model.add(keras.layers.Dense(42, activation='relu'))
+  model.add(BatchNormalization())
+  model.add(keras.layers.Dense(336, activation='relu'))
+  model.add(BatchNormalization())
+  model.add(keras.layers.Dense(168, activation='relu'))
+  model.add(BatchNormalization())
   model.add(keras.layers.Dense(7,  activation='softmax'))
-  model.compile(loss='categorical_crossentropy', optimizer="rmsprop", metrics=['accuracy'])
+  model.compile(loss='categorical_crossentropy', optimizer="nadam", metrics=['accuracy'])
   return model
 
 
 def train_model(model, X, Y):
   X = np.array(X)
   Y = np.array(Y)
-  model.fit(X, Y, epochs=epochs)
+  #Y = to_categorical(Y, num_classes=7)
+  limit = int(0.8 * len(X))
+  X_train = X[:limit]
+  X_test = X[limit:]
+  y_train = Y[:limit]
+  y_test = Y[limit:]
+  model.fit(X_train, y_train, validation_data=(X_test, y_test), epochs=epochs)
+ # model.fit(X, Y, epochs=epochs)
 
 def train():
   def to_training_data(game, result, agentname):
@@ -76,8 +87,8 @@ def train():
   X = []
   Y = []
   global model
-  for _ in range(1, 3):
-    results = training_games(agents, 100)
+  for _ in range(1, 40):
+    results = training_games(agents, 10)
     for result in results:
       x, y = to_training_data(game, result, agents[0].name())
       X.extend(x)
@@ -88,8 +99,8 @@ def train():
 game = connect4.Connect4()
 model = None
 model = create_model()
-agent1_param = {'name':'mc_AZ', 'advanced': False, 'simulations':10, 'explore': 8, 'model': model}
-agent2_param = {'name':'mc_standard', 'simulations':10, 'explore': 8}
+agent1_param = {'name':'mc_AZ', 'advanced': False, 'simulations':250, 'explore': 0, 'model': model}
+agent2_param = {'name':'mc_standard', 'simulations':250, 'explore': 8}
 agents = [mcts_agent.MCTSAgent(agent1_param), mcts_agent.MCTSAgent(agent2_param)]
 agents_eval = agents
 
