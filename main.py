@@ -35,7 +35,7 @@ ap = argparse.ArgumentParser()
 ap.add_argument(
     "-g",
     "--games",
-    default=1,
+    default=5,
     help="Number of games to play.",
     type=int,
 )
