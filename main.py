@@ -20,8 +20,6 @@ def play_a_game(game, A):
         #print(game.get_board())
         n += 1
     if game.winning_move():
-        print(game.get_board())
-        print(A[0].name())
         if game.get_to_move() == game.PLAYER_1:
             ScorePlayer["Player2"] += 1
             ScoreAgent[A[1].name()] += 1

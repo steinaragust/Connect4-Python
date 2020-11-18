@@ -21,7 +21,7 @@ def simulate(self, game, tree, advanced_mode):
 
         #priors = self.model.predict(x)
         priors, value = self.model(x, training=False)
-        return priors[0], value[0]
+        return priors.numpy()[0], value.numpy()[0][0]
 
 
     def select(node_id):
@@ -72,7 +72,7 @@ def simulate(self, game, tree, advanced_mode):
                 #move = winning_move
             #elif advanced_mode:
             if advanced_mode:
-                predictions = predict()
+                predictions, _ = predict()
                 move = get_best_move_from_nn(predictions, moves)
             else:
                 move = moves[random.randint(0, len(moves) - 1)]
@@ -93,14 +93,14 @@ def simulate(self, game, tree, advanced_mode):
         label.q[i].add(value)
         return
 
-    def get_priors(node_id):
+    #def get_priors(node_id):
         # In AZ, would call NN here to get priors and value.
-        label = tree.node_label(node_id)
-        predictions, value = predict()
-        moves = game.get_valid_locations()
-        for i, m in enumerate(moves):
-            label.p[i] = predictions[m]
-        return value
+        #label = tree.node_label(node_id)
+        #predictions, value = predict()
+        #moves = game.get_valid_locations()
+        #for i, m in enumerate(moves):
+            #label.p[i] = predictions[m]
+        #return value
 
     def evaluate(node_id):
         # In AZ, would call NN here to get priors and value.
@@ -116,7 +116,6 @@ def simulate(self, game, tree, advanced_mode):
             if advanced_mode:
                 new_node_id = expand(parent_id)
                 value = evaluate(new_node_id)
-
             else:
                 value = playout(copy.deepcopy(game))
                 expand(parent_id)

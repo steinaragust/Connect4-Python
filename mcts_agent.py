@@ -11,7 +11,7 @@ class MCTSAgent:
         self._name = self._params.get('name')
         if self._name is None:
             self._name = "mc_agent"
-        self.model = keras.models.load_model("model.h5",compile=False)
+        self.model = keras.models.load_model("model_b.h5",compile=False)
         return
 
     def name(self):
