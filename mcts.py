@@ -18,9 +18,14 @@ def simulate(self, game, tree, advanced_mode):
     def predict():
         x = game.get_board().flatten()
         x = np.reshape(x, (1, -1))
+<<<<<<< HEAD
         #priors = self.model.predict(x)
         priors, value = self.model(x, training=False)
         return priors[0], value[0]
+=======
+        priors = self.model(x, training=False)
+        return priors[0].numpy()
+>>>>>>> 6586779b388b8d1e479dffca0d2686b147008850
 
     def select(node_id):
         def puct(label, i):
@@ -36,6 +41,8 @@ def simulate(self, game, tree, advanced_mode):
         func = puct if advanced_mode else uct
         node_label = tree.node_label(node_id)
         max_i = utils.argmax(node_label, len(node_label.moves), func, utils.Infinity)
+        #if len([0 for x in node_label.q if x.n != 0]) == 7:
+            #print('hi')
         return max_i, node_label.moves[max_i]
 
     def bias(game, moves):
@@ -46,6 +53,11 @@ def simulate(self, game, tree, advanced_mode):
             if winning_move:
                 return m
         return None
+
+    def get_best_move_from_nn(predictions, moves):
+        available_moves = [(p, i) for i, p in enumerate(predictions) if i in moves]
+        return sorted(available_moves, key=lambda x: x[0], reverse=True)[0][1]
+
 
 
     def playout(g):
@@ -83,20 +95,28 @@ def simulate(self, game, tree, advanced_mode):
         label.q[i].add(value)
         return
 
-    def evaluate(node_id):
+    def get_priors(node_id):
         # In AZ, would call NN here to get priors and value.
         label = tree.node_label(node_id)
         predictions, value = predict()
         moves = game.get_valid_locations()
         for i, m in enumerate(moves):
             label.p[i] = predictions[m]
+<<<<<<< HEAD
         return value
+=======
+>>>>>>> 6586779b388b8d1e479dffca0d2686b147008850
 
     def traverse(depth, node_id, parent_id):
         if node_id is None:
             if advanced_mode:
                 new_node_id = expand(parent_id)
+<<<<<<< HEAD
                 value = evaluate(new_node_id)
+=======
+                get_priors(new_node_id)
+                value = playout(copy.deepcopy(game))
+>>>>>>> 6586779b388b8d1e479dffca0d2686b147008850
             else:
                 value = playout(copy.deepcopy(game))
                 expand(parent_id)
