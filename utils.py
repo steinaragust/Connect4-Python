@@ -37,57 +37,53 @@ def argmax(data, n, evaluate, maximum_value=None):
             max_v = value
     return max_i
 
-def evaluate_window(game, window):
+def evaluate_window(game, window, piece):
     score = 0
-    piece = game.get_piece()
-    opp_piece = game.get_opponent_piece()
-
-    winning_move = game.winning_move()
-
+    piece_score = 0
     if window.count(piece) == 4:
-        score += 100
+        piece_score += 100
     elif window.count(piece) == 3 and window.count(game.EMPTY) == 1:
-        score += 5
+        piece_score += 5
     elif window.count(piece) == 2 and window.count(game.EMPTY) == 2:
-        score += 2
-
-    if window.count(opp_piece) == 3 and window.count(game.EMPTY) == 1:
-        score -= 4
+        piece_score += 2
 
     return score
-
 
 def score_position(game):
-    score = 0
     board = game.get_board()
-    ## Score center column
+    turn = game.get_piece()
+    totalScore = 0
     center_array = [int(i) for i in list(board[:, game.COLUMN_COUNT // 2])]
-    center_count = center_array.count(game.get_opponent_piece())
-    score += center_count * 3
+    for piece in game.PIECES:
+        score = 0
+        ## Score center column
+        center_count = center_array.count(piece)
+        score += center_count * 3
 
-    ## Score Horizontal
-    for r in range(game.ROW_COUNT):
-        row_array = [int(i) for i in list(board[r, :])]
-        for c in range(game.COLUMN_COUNT - 3):
-            window = row_array[c: c + game.WINDOW_LENGTH]
-            score += evaluate_window(game, window)
+        ## Score Horizontal
+        for r in range(game.ROW_COUNT):
+            row_array = [int(i) for i in list(board[r, :])]
+            for c in range(game.COLUMN_COUNT - 3):
+                window = row_array[c: c + game.WINDOW_LENGTH]
+                score += evaluate_window(game, window, piece)
 
-    ## Score Vertical
-    for c in range(game.COLUMN_COUNT):
-        col_array = [int(i) for i in list(board[:, c])]
+        ## Score Vertical
+        for c in range(game.COLUMN_COUNT):
+            col_array = [int(i) for i in list(board[:, c])]
+            for r in range(game.ROW_COUNT - 3):
+                window = col_array[r: r + game.WINDOW_LENGTH]
+                score += evaluate_window(game, window, piece)
+
+        ## Score posive sloped diagonal
         for r in range(game.ROW_COUNT - 3):
-            window = col_array[r: r + game.WINDOW_LENGTH]
-            score += evaluate_window(game, window)
+            for c in range(game.COLUMN_COUNT - 3):
+                window = [board[r + i][c + i] for i in range(game.WINDOW_LENGTH)]
+                score += evaluate_window(game, window, piece)
 
-    ## Score posive sloped diagonal
-    for r in range(game.ROW_COUNT - 3):
-        for c in range(game.COLUMN_COUNT - 3):
-            window = [board[r + i][c + i] for i in range(game.WINDOW_LENGTH)]
-            score += evaluate_window(game, window)
+        for r in range(game.ROW_COUNT - 3):
+            for c in range(game.COLUMN_COUNT - 3):
+                window = [board[r + 3 - i][c + i] for i in range(game.WINDOW_LENGTH)]
+                score += evaluate_window(game, window, piece)
+        totalScore += (1 if piece == turn else -1) * score
+    return totalScore
 
-    for r in range(game.ROW_COUNT - 3):
-        for c in range(game.COLUMN_COUNT - 3):
-            window = [board[r + 3 - i][c + i] for i in range(game.WINDOW_LENGTH)]
-            score += evaluate_window(game, window)
-
-    return score

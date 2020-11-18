@@ -19,9 +19,8 @@ def simulate(self, game, tree, advanced_mode):
         #model = keras.models.load_model("model.h5",compile=False)
         x = game.get_board().flatten()
         x = np.reshape(x, (1, -1))
-        #priors = self.model.predict(x)
         priors = self.model(x, training=False)
-        return priors[0]
+        return priors[0].numpy()
 
     def select(node_id):
         def puct(label, i):
@@ -37,6 +36,8 @@ def simulate(self, game, tree, advanced_mode):
         func = puct if advanced_mode else uct
         node_label = tree.node_label(node_id)
         max_i = utils.argmax(node_label, len(node_label.moves), func, utils.Infinity)
+        #if len([0 for x in node_label.q if x.n != 0]) == 7:
+            #print('hi')
         return max_i, node_label.moves[max_i]
 
     def bias(game, moves):
@@ -47,6 +48,11 @@ def simulate(self, game, tree, advanced_mode):
             if winning_move:
                 return m
         return None
+
+    def get_best_move_from_nn(predictions, moves):
+        available_moves = [(p, i) for i, p in enumerate(predictions) if i in moves]
+        return sorted(available_moves, key=lambda x: x[0], reverse=True)[0][1]
+
 
 
     def playout(g):
@@ -59,12 +65,13 @@ def simulate(self, game, tree, advanced_mode):
         player = g.get_to_move()
         while not g.is_terminal_node():
             moves = g.get_valid_locations()
-            winning_move = bias(g, moves)
-            if winning_move is not None:
-                move = winning_move
-            elif advanced_mode:
+            #winning_move = bias(g, moves)
+            #if winning_move is not None:
+                #move = winning_move
+            #elif advanced_mode:
+            if advanced_mode:
                 predictions = predict()
-                move = moves.index[np.where(predictions == np.argmax(predictions))]
+                move = get_best_move_from_nn(predictions, moves)
             else:
                 move = moves[random.randint(0, len(moves) - 1)]
             g.drop_piece_in_column(move)
@@ -84,24 +91,22 @@ def simulate(self, game, tree, advanced_mode):
         label.q[i].add(value)
         return
 
-    def evaluate(node_id):
+    def get_priors(node_id):
         # In AZ, would call NN here to get priors and value.
         label = tree.node_label(node_id)
         predictions = predict()
         moves = game.get_valid_locations()
         for i, m in enumerate(moves):
             label.p[i] = predictions[m]
-        return utils.score_position(game)
 
     def traverse(depth, node_id, parent_id):
         if node_id is None:
             if advanced_mode:
                 new_node_id = expand(parent_id)
-                value = evaluate(new_node_id)
-                print("advance " + str(value))
+                get_priors(new_node_id)
+                value = playout(copy.deepcopy(game))
             else:
                 value = playout(copy.deepcopy(game))
-                print("basic " + str(value))
                 expand(parent_id)
         else:
             if game.is_terminal_node():
