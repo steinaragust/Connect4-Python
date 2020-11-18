@@ -102,6 +102,14 @@ def simulate(self, game, tree, advanced_mode):
             label.p[i] = predictions[m]
         return value
 
+    def evaluate(node_id):
+        # In AZ, would call NN here to get priors and value.
+        label = tree.node_label(node_id)
+        predictions, value = predict()
+        moves = game.get_valid_locations()
+        for i, m in enumerate(moves):
+            label.p[i] = predictions[m]
+        return value
 
     def traverse(depth, node_id, parent_id):
         if node_id is None:
