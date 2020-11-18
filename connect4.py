@@ -7,8 +7,8 @@ class Connect4:
     OPPONENT = [PLAYER_2, PLAYER_1]
 
     EMPTY = 0
-    PLAYER_1_PIECE = 1
-    PLAYER_2_PIECE = 2
+    PLAYER_1_PIECE = 0.5
+    PLAYER_2_PIECE = 1
 
     PIECES = [PLAYER_1_PIECE, PLAYER_2_PIECE]
 

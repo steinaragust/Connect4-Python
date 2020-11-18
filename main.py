@@ -17,8 +17,7 @@ def play_a_game(game, A):
     while not game.is_terminal_node():
         values = A[n % 2].play(copy.deepcopy(game), utils.CheckAbort(time))
         game.drop_piece_in_column(values[0])
-        #if (A[n % 2].name() == 'AB'):
-            #print(game.get_board())
+        print(game.get_board())
         n += 1
     if game.winning_move():
         if game.get_to_move() == game.PLAYER_1:
@@ -70,10 +69,10 @@ games = args['games']
 
 game = connect4.Connect4()
 
-agent_1_params = {"name": "AB", 'simulations':10}
-agent_2_params = {"name": "MCTS"}
+agent1_param = {'name':'mc_AZ', 'advanced': True, 'simulations':50, 'explore': 8}
+agent2_param = {'name':'mc_standard', 'simulations':50, 'explore': 8}
 
-agents = [alphabeta_agent.AlphaBetaAgent(agent_1_params), mcts_agent.MCTSAgent(agent_2_params)]
+agents = [mcts_agent.MCTSAgent(agent1_param), mcts_agent.MCTSAgent(agent2_param)]
 
 ScoreAgent = {agents[0].name(): 0, agents[1].name(): 0}
 

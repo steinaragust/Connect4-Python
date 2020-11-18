@@ -14,13 +14,13 @@ class NodeLabel:
         self.p = [1.0 for _ in range(self.len)]
         return
 
-def simulate(game, tree, advanced_mode):
+def simulate(self, game, tree, advanced_mode):
     def predict():
-        model = keras.models.load_model("model.h5",compile=False)
+        #model = keras.models.load_model("model.h5",compile=False)
         x = game.get_board().flatten()
         x = np.reshape(x, (1, -1))
-        priors = model.predict(x)
-        # priors = model(x, training=False)
+        #priors = self.model.predict(x)
+        priors = self.model(x, training=False)
         return priors[0]
 
     def select(node_id):
@@ -98,8 +98,10 @@ def simulate(game, tree, advanced_mode):
             if advanced_mode:
                 new_node_id = expand(parent_id)
                 value = evaluate(new_node_id)
+                print("advance " + str(value))
             else:
                 value = playout(copy.deepcopy(game))
+                print("basic " + str(value))
                 expand(parent_id)
         else:
             if game.is_terminal_node():

@@ -11,7 +11,7 @@ class MCTSAgent:
         self._name = self._params.get('name')
         if self._name is None:
             self._name = "mc_agent"
-
+        self.model = keras.models.load_model("model.h5",compile=False)
         return
 
     def name(self):
@@ -50,8 +50,9 @@ class MCTSAgent:
             max_num_simulations = 0
 
         num_simulations = 0
-        while not check_abort.do_abort() and (max_num_simulations == 0 or num_simulations <= max_num_simulations):
-            mcts.simulate(game, self.tree, in_advanced_mode)
+        #while not check_abort.do_abort() and (max_num_simulations == 0 or num_simulations <= max_num_simulations):
+        while (max_num_simulations == 0 or num_simulations <= max_num_simulations):
+            mcts.simulate(self, game, self.tree, in_advanced_mode)
             # tree.depth_first_traversal(self.tree, self.tree.root(), 0, display)
             num_simulations += 1
 
