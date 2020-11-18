@@ -1,7 +1,8 @@
 import tensorflow.keras as keras
+import tensorflow.keras.layers as layers
 from tensorflow.keras.utils import to_categorical
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Conv2D, MaxPooling2D, Flatten, Dropout, BatchNormalization
+from tensorflow.keras.models import Sequential,Model
+from tensorflow.keras.layers import Dense, Conv2D, MaxPooling2D, Flatten, Dropout, BatchNormalization, LeakyReLU,Input,Add,Concatenate
 from tensorflow.keras.optimizers import Nadam,Adam
 import tensorflow as tf
 import numpy as np
@@ -14,7 +15,7 @@ tf.autograph.set_verbosity(3)
 
 numberOfInputs = 42
 numberOfOutputs = 7
-batchSize = 50
+batchSize = 128
 epochs = 100
 
 def output_represention(moves, policy):
@@ -24,37 +25,61 @@ def output_represention(moves, policy):
   return tensor
 
 def create_model():
-  model = keras.Sequential()
-  model.add(keras.layers.Dense(42, activation='relu', input_shape=(42,)))
-  model.add(BatchNormalization())
- # model.add(Dropout(0.1))
- # model.add(keras.layers.Dense(512, activation='relu'))
- # model.add(BatchNormalization())
- # model.add(Dropout(0.2))
-  model.add(keras.layers.Dense(42, activation='relu'))
-  model.add(BatchNormalization())
- # model.add(Dropout(0.1))
-  model.add(keras.layers.Dense(7,  activation='softmax'))
-  model.compile(loss='categorical_crossentropy', optimizer="adam", metrics=['accuracy'])
+  Input_1= Input(shape=(42, ),name="input")
+
+  x = Dense(42, activation='relu')(Input_1)
+  x = BatchNormalization()(x)
+  x = Dense(84, activation='relu')(x)
+  x = BatchNormalization()(x)
+  x = Dense(42, activation='relu')(x)
+  x = BatchNormalization()(x)
+
+  out1 = Dense(7, name="policy", activation='softmax')(x)
+
+  out2 = Dense(10, activation='relu')(x)
+  out2 = BatchNormalization()(out2)
+  out2 = Dense(1, name="value",  activation='linear')(out2)
+
+
+  model = Model(inputs=Input_1, outputs=[out1,out2])
+  model.compile(
+      optimizer="adam",
+      loss={
+        "policy": keras.losses.CategoricalCrossentropy(from_logits=True),
+        "value": 'mean_squared_error',
+      },
+      loss_weights=[0.3, 0.7],
+      metrics=['accuracy']
+)
   return model
 
 
-def train_model(model, X, Y):
+def train_model(model, X, Y, Z):
   X = np.array(X)
   Y = np.array(Y)
+  Z = np.array(Z)
   #Y = to_categorical(Y, num_classes=7)
   limit = int(0.8 * len(X))
   X_train = X[:limit]
   X_test = X[limit:]
   y_train = Y[:limit]
   y_test = Y[limit:]
-  model.fit(X_train, y_train, validation_data=(X_test, y_test), epochs=epochs)
- # model.fit(X, Y, epochs=epochs)
+  Z_train = Z[:limit]
+  Z_test = Z[limit:]
+  model.fit(
+    {"input": X_train},
+    {"policy": y_train, "value": Z_train},
+   # {"input": X_test},
+   # {"policy": y_test, "value": Z_test}, 
+    epochs=epochs
+    
+)
 
 def train():
   def to_training_data(game, result, agentname):
     X = []
     Y = []
+    Z = []
     draws = result[3]
     if result[0][0] == agentname:
       outcome = result[2]
@@ -64,15 +89,16 @@ def train():
       agent = 1
     else:
       print('Oops, agent not playing!')
-      return X, Y
+      return X, Y, Z
     game.setup()
     for i, return_value in enumerate(result[1]):
       move, value, max_i, moves, policy, q = return_value
       if i % 2 == agent:
         X.append(game.get_board().flatten())
         Y.append(output_represention(moves, policy))
+        Z.append(value)
       game.drop_piece_in_column(move)
-    return np.array(X), np.array(Y)
+    return np.array(X), np.array(Y), np.array(Z)
 
 
   def training_games(agents, num_games):
@@ -89,25 +115,26 @@ def train():
     print('Draws: %d' % (draws))
     return game_records
 
- # X = []
- # Y = []
+
   global model
-  for _ in range(1, 5):
+  for _ in range(0, 10):
     X = []
     Y = []
-    results = training_games(agents, 1)
+    Z = []
+    results = training_games(agents, 10)
     for result in results:
-      x, y = to_training_data(game, result, agents[0].name())
+      x, y, z = to_training_data(game, result, agents[0].name())
       X.extend(x)
       Y.extend(y)
-    train_model(model, np.array(X), np.array(Y))
+      Z.extend(z)
+    train_model(model, X, Y, Z)
   return
 
 game = connect4.Connect4()
 model = None
 model = create_model()
-agent1_param = {'name':'mc_AZ', 'advanced': True, 'simulations':100, 'explore': 5, 'model': model}
-agent2_param = {'name':'mc_standard', 'simulations':5, 'explore': 5}
+agent1_param = {'name':'mc_AZ', 'advanced': False, 'simulations':150, 'explore': 5, 'model': model}
+agent2_param = {'name':'mc_standard', 'advanced': False, 'simulations':50, 'explore': 5}
 agents = [mcts_agent.MCTSAgent(agent1_param), mcts_agent.MCTSAgent(agent2_param)]
 agents_eval = agents
 
