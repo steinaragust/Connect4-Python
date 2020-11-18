@@ -71,14 +71,11 @@ games = args['games']
 
 game = connect4.Connect4()
 
-<<<<<<< HEAD
+
 agent1_param = {'name':'mc_AZ', 'advanced': True,  'explore': 0}
 agent2_param = {'name':'mc_standard', 'simulations':10, 'explore': 5}
 
-=======
-agent1_param = {'name':'mc_AZ', 'advanced': True, 'simulations':50, 'explore': 0}
-agent2_param = {'name':'mc_standard', 'simulations':50, 'explore': 8}
->>>>>>> 6586779b388b8d1e479dffca0d2686b147008850
+
 
 agents = [mcts_agent.MCTSAgent(agent1_param), mcts_agent.MCTSAgent(agent2_param)]
 

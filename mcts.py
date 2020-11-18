@@ -18,14 +18,11 @@ def simulate(self, game, tree, advanced_mode):
     def predict():
         x = game.get_board().flatten()
         x = np.reshape(x, (1, -1))
-<<<<<<< HEAD
+
         #priors = self.model.predict(x)
         priors, value = self.model(x, training=False)
         return priors[0], value[0]
-=======
-        priors = self.model(x, training=False)
-        return priors[0].numpy()
->>>>>>> 6586779b388b8d1e479dffca0d2686b147008850
+
 
     def select(node_id):
         def puct(label, i):
@@ -70,12 +67,13 @@ def simulate(self, game, tree, advanced_mode):
         player = g.get_to_move()
         while not g.is_terminal_node():
             moves = g.get_valid_locations()
-            winning_move = bias(g, moves)
-            if winning_move is not None:
-                move = winning_move
-            elif advanced_mode:
+            #winning_move = bias(g, moves)
+            #if winning_move is not None:
+                #move = winning_move
+            #elif advanced_mode:
+            if advanced_mode:
                 predictions = predict()
-                move = moves.index[np.where(predictions == np.argmax(predictions))]
+                move = get_best_move_from_nn(predictions, moves)
             else:
                 move = moves[random.randint(0, len(moves) - 1)]
             g.drop_piece_in_column(move)
@@ -102,21 +100,15 @@ def simulate(self, game, tree, advanced_mode):
         moves = game.get_valid_locations()
         for i, m in enumerate(moves):
             label.p[i] = predictions[m]
-<<<<<<< HEAD
         return value
-=======
->>>>>>> 6586779b388b8d1e479dffca0d2686b147008850
+
 
     def traverse(depth, node_id, parent_id):
         if node_id is None:
             if advanced_mode:
                 new_node_id = expand(parent_id)
-<<<<<<< HEAD
                 value = evaluate(new_node_id)
-=======
-                get_priors(new_node_id)
-                value = playout(copy.deepcopy(game))
->>>>>>> 6586779b388b8d1e479dffca0d2686b147008850
+
             else:
                 value = playout(copy.deepcopy(game))
                 expand(parent_id)
