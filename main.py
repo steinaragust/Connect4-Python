@@ -28,6 +28,7 @@ def play_a_game(game, A):
             ScoreAgent[A[0].name()] += 1
     else:
         ScorePlayer["Draws"] += 1
+    print('gameOver')
 
 
 ap = argparse.ArgumentParser()
@@ -70,7 +71,7 @@ games = args['games']
 game = connect4.Connect4()
 
 
-agent1_param = {'name':'mc_AZ', 'advanced': True,  'explore': 0}
+agent1_param = {'name':'mc_AZ', 'advanced': True, 'simulations':50,  'explore': 0}
 agent2_param = {'name':'mc_standard', 'simulations':10, 'explore': 5}
 
 
