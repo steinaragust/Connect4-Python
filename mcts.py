@@ -16,12 +16,11 @@ class NodeLabel:
 
 def simulate(self, game, tree, advanced_mode):
     def predict():
-        #model = keras.models.load_model("model.h5",compile=False)
         x = game.get_board().flatten()
         x = np.reshape(x, (1, -1))
         #priors = self.model.predict(x)
-        priors = self.model(x, training=False)
-        return priors[0]
+        priors, value = self.model(x, training=False)
+        return priors[0], value[0]
 
     def select(node_id):
         def puct(label, i):
@@ -87,21 +86,19 @@ def simulate(self, game, tree, advanced_mode):
     def evaluate(node_id):
         # In AZ, would call NN here to get priors and value.
         label = tree.node_label(node_id)
-        predictions = predict()
+        predictions, value = predict()
         moves = game.get_valid_locations()
         for i, m in enumerate(moves):
             label.p[i] = predictions[m]
-        return utils.score_position(game)
+        return value
 
     def traverse(depth, node_id, parent_id):
         if node_id is None:
             if advanced_mode:
                 new_node_id = expand(parent_id)
                 value = evaluate(new_node_id)
-                print("advance " + str(value))
             else:
                 value = playout(copy.deepcopy(game))
-                print("basic " + str(value))
                 expand(parent_id)
         else:
             if game.is_terminal_node():
