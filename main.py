@@ -70,8 +70,8 @@ games = args['games']
 
 game = connect4.Connect4()
 
-agent_1_params = {"name": "AB", 'simulations':10}
-agent_2_params = {"name": "MCTS"}
+agent_1_params = {"name": "AB"}
+agent_2_params = {"name": "MCTS", 'simulations': 100}
 
 agents = [alphabeta_agent.AlphaBetaAgent(agent_1_params), mcts_agent.MCTSAgent(agent_2_params)]
 

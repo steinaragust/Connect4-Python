@@ -5,13 +5,16 @@ import utils
 def alphabeta(game, depth, alpha, beta, maximizingPlayer, check_abort):
     valid_locations = game.get_valid_locations()
     is_terminal = game.is_terminal_node()
-    if is_terminal:
+    # if is_terminal:
+    #     if game.winning_move():
+    #         return None, (-1 if maximizingPlayer else 1) * 100000000000000, False
+    #     else:  # Game is over, no more valid moves
+    #         return None, 0, False
+    if depth == 0 or is_terminal:
+        score = utils.score_position(game) - depth
         if game.winning_move():
-            return None, (-1 if maximizingPlayer else 1) * 100000000000000, False
-        else:  # Game is over, no more valid moves
-            return None, 0, False
-    if depth == 0:
-        return None, (-1 if maximizingPlayer else 1) * utils.score_position(game), False
+            score = 1000 - depth
+        return None, (1 if maximizingPlayer else -1) * score , False
     if check_abort.do_abort():
         return None, 0, True
 
@@ -52,4 +55,5 @@ def id_alphabeta(game, check_abort, params):
         depth += 1
         if max_depth > 0 and depth == max_depth:
             break
+    print(best_value)
     return best_column, best_value
