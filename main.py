@@ -36,7 +36,7 @@ ap = argparse.ArgumentParser()
 ap.add_argument(
     "-g",
     "--games",
-    default=5,
+    default=3,
     help="Number of games to play.",
     type=int,
 )
@@ -90,6 +90,3 @@ time = timer() - start_time
 print("Time:", time)
 print(ScoreAgent)
 print(ScorePlayer)
-
-
-
