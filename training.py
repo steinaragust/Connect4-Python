@@ -27,13 +27,13 @@ def create_model():
   model = keras.Sequential()
   model.add(keras.layers.Dense(42, activation='relu', input_shape=(42,)))
   model.add(BatchNormalization())
- # model.add(Dropout(0.1))
- # model.add(keras.layers.Dense(512, activation='relu'))
- # model.add(BatchNormalization())
- # model.add(Dropout(0.2))
+  model.add(Dropout(0.1))
+  model.add(keras.layers.Dense(512, activation='relu'))
+  model.add(BatchNormalization())
+  model.add(Dropout(0.2))
   model.add(keras.layers.Dense(42, activation='relu'))
   model.add(BatchNormalization())
- # model.add(Dropout(0.1))
+  model.add(Dropout(0.1))
   model.add(keras.layers.Dense(7,  activation='softmax'))
   model.compile(loss='categorical_crossentropy', optimizer="adam", metrics=['accuracy'])
   return model
@@ -42,13 +42,7 @@ def create_model():
 def train_model(model, X, Y):
   X = np.array(X)
   Y = np.array(Y)
-  #Y = to_categorical(Y, num_classes=7)
-  limit = int(0.8 * len(X))
-  X_train = X[:limit]
-  X_test = X[limit:]
-  y_train = Y[:limit]
-  y_test = Y[limit:]
-  model.fit(X_train, y_train, validation_data=(X_test, y_test), epochs=epochs)
+  model.fit(X, Y, epochs=epochs)
  # model.fit(X, Y, epochs=epochs)
 
 def train():
@@ -92,24 +86,25 @@ def train():
  # X = []
  # Y = []
   global model
-  for _ in range(1, 5):
+  while True:
     X = []
     Y = []
-    results = training_games(agents, 1)
+    results = training_games(agents, 10)
     for result in results:
       x, y = to_training_data(game, result, agents[0].name())
       X.extend(x)
       Y.extend(y)
     train_model(model, np.array(X), np.array(Y))
-  return
+    model.save('model_final_updated.h5')
+    print('model saved!')
 
 game = connect4.Connect4()
 model = None
 model = create_model()
-agent1_param = {'name':'mc_AZ', 'advanced': True, 'simulations':100, 'explore': 5, 'model': model}
-agent2_param = {'name':'mc_standard', 'simulations':5, 'explore': 5}
+model.save('model_final_updated.h5')
+agent1_param = {'name':'mc_AZ', 'advanced': True, 'simulations': 150, 'explore': 5, 'model': model}
+agent2_param = {'name':'mc_standard', 'simulations':250, 'explore': 5}
 agents = [mcts_agent.MCTSAgent(agent1_param), mcts_agent.MCTSAgent(agent2_param)]
 agents_eval = agents
 
 train()
-model.save('model.h5')

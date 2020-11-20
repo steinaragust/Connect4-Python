@@ -10,10 +10,7 @@ def play_a_game(game, A, time):
     A[0].reset()
     A[1].reset()
     while not game.is_terminal_node():
-        print('starting move for: ', A[n % 2].name())
-        print(game.get_board())
         move, value, max_i, moves, policy, q = A[n % 2].play(copy.deepcopy(game), utils.CheckAbort(time))
-        #print('end move')
         return_values.append((move, value, max_i, moves, policy, q))
         game.drop_piece_in_column(move)
         n += 1
@@ -26,6 +23,7 @@ def play_a_game(game, A, time):
             result = 1
     else:
         draws += 1
+    print('game over')
     return [A[0].name(), A[1].name()], return_values, result, draws
 
 def play_a_match(game, agents, num_games, time):

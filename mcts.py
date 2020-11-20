@@ -56,19 +56,13 @@ def simulate(self, game, tree, advanced_mode):
 
 
     def playout(g):
-        # def bias(moves, i):
-        #     m = moves[i]
-        #     to_row = g.get_board().row(m[1])
-        #     if to_row == 0 or to_row == g.get_board().rows() - 1:
-        #         return utils.Infinity  # A move winning immediately.
-        #     return 0 if m[2] == g.get_board().NoPce else 1  # A non-capture vs. capture move.
         player = g.get_to_move()
         while not g.is_terminal_node():
             moves = g.get_valid_locations()
-            #winning_move = bias(g, moves)
-            #if winning_move is not None:
-                #move = winning_move
-            #elif advanced_mode:
+            # winning_move = bias(g, moves)
+            # if winning_move is not None:
+                # move = winning_move
+            # elif advanced_mode:
             if advanced_mode:
                 predictions = predict()
                 move = get_best_move_from_nn(predictions, moves)

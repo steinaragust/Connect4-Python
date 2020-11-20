@@ -11,7 +11,7 @@ class MCTSAgent:
         self._name = self._params.get('name')
         if self._name is None:
             self._name = "mc_agent"
-        self.model = keras.models.load_model("model.h5",compile=False)
+        self.model = keras.models.load_model("model_24hour_1_final.h5",compile=False)
         return
 
     def name(self):
@@ -25,7 +25,7 @@ class MCTSAgent:
         self.tree = None
         return
 
-    def play(self, game, check_abort):
+    def play(self, game):
         """ Returns the "best" move to play in the current <game>-state, after some deliberation (<check_abort>).
         """
 

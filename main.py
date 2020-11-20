@@ -21,11 +21,14 @@ def play_a_game(game, A):
         n += 1
     if game.winning_move():
         print(game.get_board())
-        print(A[0].name())
         if game.get_to_move() == game.PLAYER_1:
+            print(A[1].name() + ' wins')
+            print('Playing with chip: %f' % (game.get_opponent_piece()))
             ScorePlayer["Player2"] += 1
             ScoreAgent[A[1].name()] += 1
         else:
+            print(A[0].name() + ' wins')
+            print('Playing with chip: %f' % (game.get_opponent_piece()))
             ScorePlayer["Player1"] += 1
             ScoreAgent[A[0].name()] += 1
     else:
@@ -36,7 +39,7 @@ ap = argparse.ArgumentParser()
 ap.add_argument(
     "-g",
     "--games",
-    default=5,
+    default=10,
     help="Number of games to play.",
     type=int,
 )
@@ -72,7 +75,7 @@ games = args['games']
 game = connect4.Connect4()
 
 agent1_param = {'name':'mc_AZ', 'advanced': True, 'simulations':50, 'explore': 0}
-agent2_param = {'name':'mc_standard', 'simulations':50, 'explore': 8}
+agent2_param = {'name':'mc_standard', 'simulations':50, 'explore': 0}
 
 agents = [mcts_agent.MCTSAgent(agent1_param), mcts_agent.MCTSAgent(agent2_param)]
 
@@ -90,6 +93,3 @@ time = timer() - start_time
 print("Time:", time)
 print(ScoreAgent)
 print(ScorePlayer)
-
-
-
